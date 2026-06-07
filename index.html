@@ -678,10 +678,26 @@ input, select { font-family: inherit; color: inherit; }
 }
 .card-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
 .card-total {
-  font-weight: 700; padding: 5px 12px; border-radius: var(--radius-pill);
+  font-weight: 700; padding: 6px 14px; border-radius: 16px;
   background: var(--surface-2); border: 1px solid var(--border);
   font-size: 13px; font-variant-numeric: tabular-nums;
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 2px; line-height: 1.15;
 }
+.card-total-main { font-weight: 700; font-size: 14px; }
+.card-total-pending {
+  font-size: 10.5px; font-weight: 600; color: var(--orange);
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.card-total-pending strong {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+}
+.card-total-pending.all-paid { color: var(--green); }
+.card-total-pending.receivable { color: var(--accent-2); }
+.card-header.primary .card-total-pending { color: rgba(251, 191, 36, 0.95); }
+.card-header.primary .card-total-pending.all-paid { color: #6ee7b7; }
 .card-body { padding: 16px 18px; position: relative; z-index: 1; }
 .card-body.tight { padding: 8px; }
 
@@ -2928,9 +2944,36 @@ function renderTables() {
   renderTable('tableVariaveis', m.variaveis, 'variaveis');
 
   const totRec = sumList(m.receitas), totFix = sumActiveFixas(m.fixas), totVar = sumList(m.variaveis);
-  document.getElementById('totalReceitas').textContent = fmt(totRec);
-  document.getElementById('totalFixas').textContent = fmt(totFix);
-  document.getElementById('totalVariaveis').textContent = fmt(totVar);
+
+  // Calculate paid/pending per section
+  function pendingStats(list, includeFn) {
+    let paid = 0, pending = 0;
+    list.forEach(x => {
+      if (!includeFn(x)) return;
+      const v = Number(x.valor) || 0;
+      if (x.pago) paid += v; else pending += v;
+    });
+    return { paid, pending, total: paid + pending };
+  }
+  function renderTotal(stats, type) {
+    const main = `<div class="card-total-main">${fmt(stats.total)}</div>`;
+    if (stats.total === 0) return main;
+    if (stats.pending === 0) {
+      const lbl = type === 'receitas' ? '✓ Tudo recebido' : '✓ Tudo pago';
+      return main + `<div class="card-total-pending all-paid">${lbl}</div>`;
+    }
+    const lbl = type === 'receitas' ? 'a receber' : 'falta pagar';
+    const cls = type === 'receitas' ? 'receivable' : '';
+    return main + `<div class="card-total-pending ${cls}"><strong>${fmt(stats.pending)}</strong> ${lbl}</div>`;
+  }
+
+  const recStats = pendingStats(m.receitas, r => r.valor > 0);
+  const fixStats = pendingStats(m.fixas, f => f.ativo);
+  const varStats = pendingStats(m.variaveis, v => v.valor > 0);
+
+  document.getElementById('totalReceitas').innerHTML = renderTotal(recStats, 'receitas');
+  document.getElementById('totalFixas').innerHTML = renderTotal(fixStats, 'despesas');
+  document.getElementById('totalVariaveis').innerHTML = renderTotal(varStats, 'despesas');
 
   const monthLabel = MONTHS_FULL[state.activeMes] + '/' + state.activeAno;
   const paidCount = (list, filterFn) => {
