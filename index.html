@@ -688,7 +688,7 @@ input, select { font-family: inherit; color: inherit; }
 /* ===== TABLE ===== */
 .table { width: 100%; }
 .table-row {
-  display: grid; grid-template-columns: 1fr 130px 80px;
+  display: grid; grid-template-columns: 1fr 130px 110px;
   align-items: center; gap: 8px;
   padding: 8px 12px; border-radius: 12px;
   transition: all var(--transition);
@@ -733,6 +733,27 @@ input, select { font-family: inherit; color: inherit; }
 .icon-btn.danger:hover {
   background: var(--red); color: white;
   box-shadow: 0 0 16px rgba(239, 68, 68, .4);
+}
+.icon-btn.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  touch-action: none;
+}
+.icon-btn.drag-handle:hover { background: var(--surface-3); color: var(--accent-2); }
+.icon-btn.drag-handle:active { cursor: grabbing; background: var(--surface-3); }
+.table-row.dragging {
+  opacity: .4;
+  background: var(--surface-3);
+  border-style: dashed;
+  border-color: var(--primary);
+}
+.table-row.drag-over-top {
+  border-top: 2px solid var(--primary) !important;
+  box-shadow: 0 -4px 12px var(--primary-glow);
+}
+.table-row.drag-over-bottom {
+  border-bottom: 2px solid var(--primary) !important;
+  box-shadow: 0 4px 12px var(--primary-glow);
 }
 .toggle {
   width: 36px; height: 20px; border-radius: var(--radius-pill);
@@ -1396,7 +1417,7 @@ input, select { font-family: inherit; color: inherit; }
   .card-body { padding: 14px; }
   .card-body.tight { padding: 6px; }
 
-  .table-row { grid-template-columns: 1fr 100px 56px; gap: 4px; padding: 6px 8px; }
+  .table-row { grid-template-columns: 1fr 100px 92px; gap: 4px; padding: 6px 8px; }
   .cell-name { font-size: 12.5px; padding: 5px 6px; gap: 4px; }
   .cell-value { font-size: 12.5px; padding: 6px 8px; }
   .icon-btn { width: 26px; height: 26px; font-size: 12px; }
@@ -1477,7 +1498,7 @@ input, select { font-family: inherit; color: inherit; }
   .header { top: 0; padding: 8px 10px; border-radius: 18px; }
   .logo { font-size: 15px; }
   .nav-item { padding: 6px 10px; font-size: 11.5px; }
-  .table-row { grid-template-columns: 1fr 80px 48px; gap: 2px; padding: 6px 6px; }
+  .table-row { grid-template-columns: 1fr 80px 86px; gap: 2px; padding: 6px 6px; }
   .cell-value { font-size: 12px; padding: 5px 6px; }
   .summary-value { font-size: 22px; }
   .month-summary .card-body { padding: 12px; }
@@ -2912,6 +2933,137 @@ function renderTable(elId, list, section) {
       tg.onclick = () => { if (isLocked) return; list[idx].ativo = !list[idx].ativo; saveState(); render(); };
       act.appendChild(tg);
     }
+    // Drag handle for reordering
+    const dragHandle = document.createElement('button');
+    dragHandle.className = 'icon-btn drag-handle';
+    dragHandle.title = 'Arrastar para reordenar';
+    dragHandle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="pointer-events:none"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+    dragHandle.draggable = true;
+    dragHandle.dataset.idx = idx;
+    dragHandle.dataset.section = section;
+
+    // === Desktop HTML5 drag and drop ===
+    dragHandle.addEventListener('dragstart', e => {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', JSON.stringify({ idx, section }));
+      try { e.dataTransfer.setDragImage(tr, 20, 20); } catch(err) {}
+      setTimeout(() => tr.classList.add('dragging'), 0);
+    });
+    dragHandle.addEventListener('dragend', () => {
+      tr.classList.remove('dragging');
+      document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+    });
+    tr.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const r = tr.getBoundingClientRect();
+      const isTop = e.clientY < r.top + r.height / 2;
+      tr.classList.toggle('drag-over-top', isTop);
+      tr.classList.toggle('drag-over-bottom', !isTop);
+    });
+    tr.addEventListener('dragleave', () => {
+      tr.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    tr.addEventListener('drop', e => {
+      e.preventDefault();
+      const isTop = tr.classList.contains('drag-over-top');
+      tr.classList.remove('drag-over-top', 'drag-over-bottom');
+      try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        if (data.section !== section) return;
+        const fromIdx = data.idx;
+        let toIdx = idx;
+        if (fromIdx === toIdx) return;
+        if (!isTop) toIdx += 1;
+        if (fromIdx < toIdx) toIdx -= 1;
+        const item = list.splice(fromIdx, 1)[0];
+        list.splice(toIdx, 0, item);
+        saveState();
+        render();
+      } catch(err) {}
+    });
+
+    // === Mobile touch support ===
+    let touchDragging = false;
+    let touchStartY = 0;
+    let dragGhost = null;
+    let scrollInterval = null;
+
+    dragHandle.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      touchStartY = t.clientY;
+      touchDragging = true;
+      tr.classList.add('dragging');
+      // Create a floating ghost
+      dragGhost = tr.cloneNode(true);
+      dragGhost.style.position = 'fixed';
+      dragGhost.style.left = tr.getBoundingClientRect().left + 'px';
+      dragGhost.style.top = (t.clientY - 20) + 'px';
+      dragGhost.style.width = tr.offsetWidth + 'px';
+      dragGhost.style.opacity = '.85';
+      dragGhost.style.zIndex = '9999';
+      dragGhost.style.pointerEvents = 'none';
+      dragGhost.style.boxShadow = '0 8px 24px var(--primary-glow)';
+      dragGhost.style.background = 'var(--surface-solid)';
+      dragGhost.style.border = '1px solid var(--primary)';
+      dragGhost.classList.remove('dragging');
+      document.body.appendChild(dragGhost);
+    }, { passive: false });
+
+    dragHandle.addEventListener('touchmove', e => {
+      if (!touchDragging) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      if (dragGhost) dragGhost.style.top = (t.clientY - 20) + 'px';
+      // Find row under finger
+      const rows = el.querySelectorAll('.table-row');
+      rows.forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+      const target = document.elementFromPoint(t.clientX, t.clientY);
+      const targetRow = target ? target.closest('.table-row') : null;
+      if (targetRow && targetRow !== tr) {
+        const rect = targetRow.getBoundingClientRect();
+        const isTop = t.clientY < rect.top + rect.height / 2;
+        targetRow.classList.add(isTop ? 'drag-over-top' : 'drag-over-bottom');
+      }
+      // Auto-scroll near edges
+      const viewportH = window.innerHeight;
+      if (t.clientY < 80) window.scrollBy(0, -5);
+      else if (t.clientY > viewportH - 80) window.scrollBy(0, 5);
+    }, { passive: false });
+
+    dragHandle.addEventListener('touchend', e => {
+      if (!touchDragging) return;
+      touchDragging = false;
+      tr.classList.remove('dragging');
+      if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+      const t = e.changedTouches[0];
+      const target = document.elementFromPoint(t.clientX, t.clientY);
+      const targetRow = target ? target.closest('.table-row') : null;
+      if (targetRow && targetRow !== tr) {
+        const allRows = Array.from(el.querySelectorAll('.table-row'));
+        const targetIdx = allRows.indexOf(targetRow);
+        if (targetIdx >= 0 && targetIdx !== idx) {
+          const rect = targetRow.getBoundingClientRect();
+          const isTop = t.clientY < rect.top + rect.height / 2;
+          let toIdx = targetIdx;
+          if (!isTop) toIdx += 1;
+          if (idx < toIdx) toIdx -= 1;
+          const item = list.splice(idx, 1)[0];
+          list.splice(toIdx, 0, item);
+          saveState();
+          render();
+        }
+      }
+      document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+    });
+
+    act.appendChild(dragHandle);
+
     // Always show delete button — for any row in any section
     const del = document.createElement('button');
     del.className = 'icon-btn danger'; del.innerHTML = '🗑'; del.title = 'Remover';
