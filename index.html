@@ -2428,9 +2428,9 @@ function monthHasData(y, m) {
   const k = getMonthKey(y, m);
   const M = state.months[k];
   if (!M) return false;
-  if (M.receitas && M.receitas.some(r => (Number(r.valor) || 0) > 0)) return true;
   if (M.variaveis && M.variaveis.some(v => (Number(v.valor) || 0) > 0)) return true;
   if (M.fixas && M.fixas.some(f => f.pago)) return true;
+  if (M.receitas && M.receitas.some(r => r.pago)) return true;
   return false;
 }
 
