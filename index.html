@@ -904,7 +904,7 @@ input, select { font-family: inherit; color: inherit; }
 }
 .month-summary .card-body { padding: 24px; position: relative; z-index: 1; }
 .summary-row {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 18px;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px;
 }
 .summary-stat {
   background: rgba(255, 255, 255, .06);
@@ -927,11 +927,12 @@ input, select { font-family: inherit; color: inherit; }
   text-transform: uppercase; letter-spacing: .08em; font-weight: 600;
 }
 .summary-stat-value {
-  font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif; font-size: 15.5px; font-weight: 700;
   font-variant-numeric: tabular-nums; color: white; letter-spacing: -.02em;
   position: relative; z-index: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.summary-stat-value.balance { font-size: 26px; text-shadow: 0 0 24px rgba(255,255,255,.2); }
+.summary-stat-value.balance { font-size: 19px; text-shadow: 0 0 24px rgba(255,255,255,.2); }
 .summary-stat-value.green { color: #34d399; }
 .summary-stat-value.red { color: #fca5a5; }
 
@@ -1471,11 +1472,11 @@ input, select { font-family: inherit; color: inherit; }
   .month-tab { padding: 7px 10px; font-size: 12px; min-width: 50px; }
 
   .month-summary .card-body { padding: 14px; }
-  .summary-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .summary-row { grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .summary-stat { padding: 10px 12px; border-radius: 12px; }
   .summary-stat-label { font-size: 10px; margin-bottom: 4px; }
-  .summary-stat-value { font-size: 14px; }
-  .summary-stat-value.balance { font-size: 22px; }
+  .summary-stat-value { font-size: 13px; }
+  .summary-stat-value.balance { font-size: 15px; }
   .progress-section { padding: 12px 14px; border-radius: 12px; }
   .hero-chart-wrap { padding: 12px; margin-top: 14px; }
   .hero-chart-canvas { height: 140px; }
@@ -1581,7 +1582,7 @@ input, select { font-family: inherit; color: inherit; }
   .cell-value { font-size: 12px; padding: 5px 6px; }
   .summary-value { font-size: 22px; }
   .month-summary .card-body { padding: 12px; }
-  .summary-stat-value.balance { font-size: 20px; }
+  .summary-stat-value.balance { font-size: 14px; }
   .invest-row { padding: 12px 12px 12px 18px; }
   .invest-amount-pct { font-size: 18px; }
   #dashReserve > .card > div { grid-template-columns: 1fr !important; gap: 10px !important; padding: 14px !important; }
@@ -1999,6 +2000,10 @@ input, select { font-family: inherit; color: inherit; }
             <div class="summary-stat">
               <div class="summary-stat-label">Variável</div>
               <div class="summary-stat-value red" id="rsVariavel">R$ 0,00</div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat-label">Despesas</div>
+              <div class="summary-stat-value red" id="rsDespesas">R$ 0,00</div>
             </div>
             <div class="summary-stat">
               <div class="summary-stat-label">Balanço</div>
@@ -3518,6 +3523,7 @@ function renderHeroSummary() {
   document.getElementById('rsReceita').textContent = fmt(c.receita);
   document.getElementById('rsFixo').textContent = fmt(c.fixo);
   document.getElementById('rsVariavel').textContent = fmt(c.variavel);
+  document.getElementById('rsDespesas').textContent = fmt(c.fixo + c.variavel);
 
   const balEl = document.getElementById('rsBalanco');
   balEl.textContent = fmt(c.balanco);
