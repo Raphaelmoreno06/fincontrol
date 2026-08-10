@@ -909,8 +909,9 @@ input, select { font-family: inherit; color: inherit; }
 .summary-stat {
   background: rgba(255, 255, 255, .06);
   border: 1px solid rgba(255, 255, 255, .1);
-  padding: 14px 16px;
+  padding: 13px 12px;
   border-radius: 16px;
+  min-width: 0;
   backdrop-filter: blur(12px);
   transition: all var(--transition);
   position: relative;
@@ -927,12 +928,18 @@ input, select { font-family: inherit; color: inherit; }
   text-transform: uppercase; letter-spacing: .08em; font-weight: 600;
 }
 .summary-stat-value {
-  font-family: 'Space Grotesk', sans-serif; font-size: 15.5px; font-weight: 700;
-  font-variant-numeric: tabular-nums; color: white; letter-spacing: -.02em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(12px, 1.15vw, 16px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums; color: white; letter-spacing: -.025em;
   position: relative; z-index: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
 }
-.summary-stat-value.balance { font-size: 19px; text-shadow: 0 0 24px rgba(255,255,255,.2); }
+.summary-stat-value.balance {
+  font-size: clamp(14px, 1.35vw, 20px);
+  text-shadow: 0 0 24px rgba(255,255,255,.2);
+}
 .summary-stat-value.green { color: #34d399; }
 .summary-stat-value.red { color: #fca5a5; }
 
