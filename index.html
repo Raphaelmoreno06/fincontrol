@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1599,6 +1599,268 @@ input, select { font-family: inherit; color: inherit; }
   .toggle.on::after { transform: translateX(18px); }
   .month-tab { padding: 10px 14px; }
 }
+
+/* ============================================================
+   STOVEST v3 — Sidebar layout + glass cards + refined typography
+   ============================================================ */
+@media (min-width: 900px) {
+  /* App becomes a real 2-column layout */
+  .app {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 28px 32px 40px 292px !important;
+  }
+
+  /* Transform top header into a fixed sidebar */
+  .header {
+    position: fixed !important;
+    left: 20px; top: 20px; bottom: 20px;
+    width: 252px !important;
+    max-width: 252px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 22px 14px !important;
+    margin: 0 !important;
+    border-radius: 24px !important;
+    border: 1px solid var(--border) !important;
+    background: linear-gradient(180deg, rgba(15,23,42,.55) 0%, rgba(11,18,36,.9) 100%) !important;
+    background-image:
+      radial-gradient(ellipse 100% 40% at 0% 0%, rgba(59,130,246,.18) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 40% at 100% 100%, rgba(139,92,246,.12) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(15,23,42,.55) 0%, rgba(11,18,36,.9) 100%) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.05) !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 100;
+  }
+  .header::before {
+    content: ''; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  }
+
+  .hamburger { display: none !important; }
+
+  .logo {
+    padding: 6px 12px 20px !important;
+    justify-content: flex-start !important;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+    font-size: 20px !important;
+    letter-spacing: -.02em;
+    font-family: 'Space Grotesk', sans-serif !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: initial !important;
+  }
+  .logo-icon { font-size: 22px; }
+
+  .main-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    flex: 1 !important;
+    gap: 3px !important;
+    padding: 4px 2px;
+  }
+
+  .nav-item {
+    justify-content: flex-start !important;
+    padding: 11px 14px !important;
+    font-size: 13.5px !important;
+    border-radius: 12px !important;
+    width: 100%;
+    text-align: left;
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 1px solid transparent !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    letter-spacing: -.005em;
+    transition: all 200ms cubic-bezier(.4,0,.2,1);
+  }
+  .nav-item:hover {
+    background: rgba(148,163,184,.06) !important;
+    color: var(--text) !important;
+  }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(59,130,246,.22), rgba(37,99,235,.14)) !important;
+    color: var(--text) !important;
+    border-color: rgba(59,130,246,.3) !important;
+    box-shadow: 0 0 0 1px rgba(59,130,246,.15), 0 8px 24px rgba(59,130,246,.18), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+  .nav-item.active .nav-icon {
+    filter: drop-shadow(0 0 6px rgba(59,130,246,.6));
+  }
+  .nav-item .nav-icon { font-size: 15px; }
+
+  /* Bottom controls stacked */
+  .header-right {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 12px 4px 0 !important;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .user-greeting {
+    width: 100%;
+    justify-content: flex-start !important;
+    padding: 10px 14px !important;
+    font-size: 12.5px !important;
+    background: rgba(148,163,184,.05) !important;
+    border-radius: 12px !important;
+  }
+  .year-display {
+    width: 100%;
+    justify-content: space-between;
+    padding: 6px !important;
+    border-radius: 12px !important;
+    background: rgba(148,163,184,.05) !important;
+  }
+  .theme-toggle {
+    width: 100%;
+    height: 40px !important;
+    border-radius: 12px !important;
+    background: rgba(148,163,184,.05) !important;
+  }
+  .cloud-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    background: rgba(148,163,184,.05) !important;
+  }
+}
+
+/* ============================================================
+   Cards, KPIs and pills — refined for the Stovest aesthetic
+   ============================================================ */
+.summary { gap: 18px; margin-bottom: 26px; }
+.summary-card {
+  padding: 22px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(160deg, rgba(15,23,42,.75) 0%, rgba(11,18,36,.55) 100%) !important;
+  border: 1px solid rgba(148,163,184,.09) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 24px 48px -24px rgba(0,0,0,.5) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+}
+[data-theme="dark"] .summary-card {
+  background: linear-gradient(160deg, rgba(20,29,52,.7) 0%, rgba(11,18,36,.4) 100%) !important;
+}
+.summary-card::before { display: none !important; }
+.summary-card::after { display: none !important; }
+.summary-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59,130,246,.25) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 32px 64px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(59,130,246,.15) !important;
+}
+.summary-label {
+  font-size: 10.5px !important;
+  letter-spacing: .12em !important;
+  color: rgba(148,163,184,.85) !important;
+  margin-bottom: 12px !important;
+}
+.summary-value {
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.03em !important;
+  margin-bottom: 6px !important;
+  line-height: 1.15 !important;
+}
+.summary-trend {
+  padding: 3px 9px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+}
+.summary-sub {
+  font-size: 11.5px !important;
+  color: rgba(148,163,184,.7) !important;
+}
+
+/* Month tabs — sophisticated pill row */
+.months-nav {
+  padding: 6px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, rgba(15,23,42,.55), rgba(11,18,36,.75)) !important;
+  border: 1px solid rgba(148,163,184,.08) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+}
+.month-tab {
+  padding: 10px 14px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  letter-spacing: .01em;
+  color: rgba(148,163,184,.85) !important;
+}
+.month-tab.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+  box-shadow: 0 6px 20px rgba(59,130,246,.45), inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+.month-tab .indicator {
+  top: 6px !important; right: 8px !important;
+  width: 5px !important; height: 5px !important;
+}
+
+/* General cards - subtle refinement */
+.card {
+  border-radius: 20px !important;
+  border: 1px solid rgba(148,163,184,.08) !important;
+  background: linear-gradient(160deg, rgba(15,23,42,.65) 0%, rgba(11,18,36,.45) 100%) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 20px 40px -20px rgba(0,0,0,.5) !important;
+}
+.card::before { display: none !important; }
+.card:hover {
+  border-color: rgba(148,163,184,.14) !important;
+}
+.card-header {
+  padding: 18px 22px !important;
+  border-bottom: 1px solid rgba(148,163,184,.06) !important;
+}
+.card-title {
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  letter-spacing: -.02em !important;
+}
+
+/* Primary button - sleek blue */
+.btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-radius: 12px !important;
+  padding: 10px 20px !important;
+  font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  letter-spacing: -.005em;
+  box-shadow: 0 8px 24px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.2) !important;
+}
+.btn-secondary {
+  background: rgba(148,163,184,.08) !important;
+  border: 1px solid rgba(148,163,184,.12) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+.btn-secondary:hover {
+  background: rgba(148,163,184,.14) !important;
+  border-color: rgba(148,163,184,.2) !important;
+}
+
+/* Sidebar scrollbar */
+.header::-webkit-scrollbar { width: 4px; }
+.header::-webkit-scrollbar-thumb { background: rgba(148,163,184,.15); }
 </style>
 </head>
 <body>
@@ -2326,6 +2588,7 @@ function loadState() {
     merged.invest = Object.assign(defaultState().invest, data.invest || {});
     merged.customFixedTemplates = Array.isArray(data.customFixedTemplates) ? data.customFixedTemplates : [];
     merged.receitaDefaults = (data.receitaDefaults && typeof data.receitaDefaults === 'object') ? data.receitaDefaults : {};
+    if (!data.designV3) { merged.theme = 'dark'; merged.designV3 = true; }
     return merged;
   } catch (e) { return defaultState(); }
 }
