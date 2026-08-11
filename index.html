@@ -3207,11 +3207,20 @@ function render() {
 function renderMonthsNav() {
   const nav = document.getElementById('monthsNav');
   nav.innerHTML = '';
+  const now = new Date();
+  let nextY = now.getFullYear();
+  let nextM = now.getMonth() + 1;
+  if (nextM > 11) { nextM = 0; nextY++; }
   for (let i = 0; i < 12; i++) {
     const btn = document.createElement('button');
     btn.className = 'month-tab' + (i === state.activeMes ? ' active' : '');
     btn.textContent = MONTHS[i];
     btn.onclick = () => { state.activeMes = i; saveState(); render(); };
+    if (state.activeAno === nextY && i === nextM) {
+      const dot = document.createElement('span');
+      dot.className = 'indicator has-data';
+      btn.appendChild(dot);
+    }
     nav.appendChild(btn);
   }
 }
