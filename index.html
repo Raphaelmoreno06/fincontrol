@@ -3212,12 +3212,6 @@ function renderMonthsNav() {
     btn.className = 'month-tab' + (i === state.activeMes ? ' active' : '');
     btn.textContent = MONTHS[i];
     btn.onclick = () => { state.activeMes = i; saveState(); render(); };
-    if (monthHasData(state.activeAno, i)) {
-      const c = calcMonth(state.activeAno, i);
-      const dot = document.createElement('span');
-      dot.className = 'indicator ' + (c.balanco < 0 ? 'negative' : 'has-data');
-      btn.appendChild(dot);
-    }
     nav.appendChild(btn);
   }
 }
